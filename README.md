@@ -12,4 +12,6 @@ Prequisites
 
 Open command prompt and run `python main.py` pointing to the folder of which the script is located in.
 
-Note: The branded folder has scripts of organisations i have made this for.
+Notes:
+- The branded folder has scripts of organisations i have made this for.
+- Contact me on discord at `starlover0104` to get a specially made one

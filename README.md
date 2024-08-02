@@ -6,6 +6,7 @@ What is this for?
 
 Prequisites
 - Python 3.6.xx or higher
+- [MediaInfo](https://mediaarea.net/en/MediaInfo)
 
 # How to use
 

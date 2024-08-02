@@ -1,4 +1,4 @@
-**Extractor for MediaInfo**
+# Extractor for MediaInfo
 Advanced MediaInfo Extracting
 
 What is this for?

@@ -1,5 +1,4 @@
-import os
-import re
+import os, re
 
 def extract_info(file_path):
     info = {"Audio": [], "Subtitles": []}
@@ -32,7 +31,7 @@ def extract_info(file_path):
             if line.startswith("Video"):
                 section = "Video"
             elif line.startswith("Audio"):
-                if audio_info and all(key in audio_info for key in ["Language", "Format", "Channels", "Sampling rate", "Bit rate"]):
+                if audio_info:
                     info["Audio"].append(audio_info)
                 audio_info = {}
                 section = "Audio"
@@ -45,6 +44,9 @@ def extract_info(file_path):
                 section = "Text"
                 language_count = 0
             elif line.startswith("\n"):
+                if audio_info:
+                    info["Audio"].append(audio_info)
+                    audio_info = {}
                 section = None
 
             if section == "Video":
@@ -152,7 +154,7 @@ def extract_info(file_path):
                 elif "Format" in line:
                     subtitle_info["Format"] = line.split(":", 1)[1].strip()
 
-    if audio_info and all(key in audio_info for key in ["Language", "Format", "Channels", "Sampling rate", "Bit rate"]):
+    if audio_info:
         info["Audio"].append(audio_info)
     
     if subtitle_info and all(key in subtitle_info for key in ["Language", "Format"]):
@@ -160,7 +162,7 @@ def extract_info(file_path):
 
     return info
 
-def format_output(info, is_remux, media_type):
+def format_output(info, is_remux, media_type, encoded_by):
     video_info = (f"Video: {info.get('Complete name', 'N/A')} / "
                   f"{info.get('Bit rate', 'N/A')} / "
                   f"{info.get('Quality', 'N/A')} / "  
@@ -178,19 +180,25 @@ def format_output(info, is_remux, media_type):
                    f"{info.get('Format', 'N/A')} / "
                    f"{media_type}")
 
-    last_slash_index = video_info.rfind('/')
-    video_info = video_info[:last_slash_index+1] + " Hokan-Sho" + video_info[last_slash_index+1:]
-
     audio_info = []
     for a in info["Audio"]:
-        if all(key in a for key in ["Language", "Format", "Channels", "Sampling rate"]):
-            bit_rate_key = "Maximum bit rate" if a["Channels"] == "7.1" or a["Channels"] == "8" else "Bit rate"
-            if bit_rate_key in a:
-                bit_rate = a[bit_rate_key].replace(' ', '').replace('kbps', ' kbps')
-                audio_line = f"Audio: {a['Language']} / {a['Format']} / {a['Channels']} / {a['Sampling rate']} / {bit_rate} / {media_type}"
-                last_slash_index = audio_line.rfind('/')
-                audio_line = audio_line[:last_slash_index+1] + " Hokan-Sho" + audio_line[last_slash_index+1:]
-                audio_info.append(audio_line)
+        audio_line = "Audio:"
+        if "Language" in a:
+            audio_line += f" {a['Language']} /"
+        if "Format" in a:
+            audio_line += f" {a['Format']} /"
+        if "Channels" in a:
+            audio_line += f" {a['Channels']} /"
+        if "Sampling rate" in a:
+            audio_line += f" {a['Sampling rate']} /"
+        
+        bit_rate_key = "Maximum bit rate" if a.get("Channels") in ["7.1", "8"] else "Bit rate"
+        if bit_rate_key in a:
+            bit_rate = a[bit_rate_key].replace(' ', '').replace('kbps', ' kbps')
+            audio_line += f" {bit_rate} /"
+        
+        audio_line += f" {media_type}"
+        audio_info.append(audio_line)
 
     audio_info = "\n".join(audio_info)
     
@@ -198,8 +206,6 @@ def format_output(info, is_remux, media_type):
     for s in info["Subtitles"]:
         if all(key in s for key in ["Language", "Format"]):
             subtitle_line = f"Subtitles: {s['Language']} / {s['Format']} / {media_type}"
-            last_slash_index = subtitle_line.rfind('/')
-            subtitle_line = subtitle_line[:last_slash_index+1] + " Hokan-Sho" + subtitle_line[last_slash_index+1:]
             subtitle_info.append(subtitle_line)
     
     subtitle_info = "\n".join(subtitle_info)
@@ -211,7 +217,7 @@ def format_output(info, is_remux, media_type):
         file_name += f" [{info['HDR format']}]"
     if is_remux:
         file_name += " [Remux]"
-    file_name += f" [Encoded by The Hokan-Sho Network]"
+    file_name += f" [Encoded by {encoded_by}]"
 
     output = (f"File name: {file_name}\n\n"
               f"{video_info}\n\n"
@@ -223,7 +229,8 @@ def format_output(info, is_remux, media_type):
 def main():
     input_file = input("Enter path to MediaInfo.txt file: ").strip('"')
     is_remux = input("remux? [Y/N]: ").strip().lower() == 'y'
-    
+    encoded_by = input("Who encoded this? ")
+
     print("Choose the media source:")
     print("1. Blu-Ray")
     print("2. DVD")
@@ -253,7 +260,7 @@ def main():
     output_file = "MediaInfo Extracted.txt"
 
     info = extract_info(input_file)
-    output = format_output(info, is_remux, media_type)
+    output = format_output(info, is_remux, media_type, encoded_by)
 
     with open(output_file, 'w') as file:
         file.write(output)

@@ -8,8 +8,8 @@
 
 # How to use
 
-Open command prompt and run `python main.py` pointing to the folder of which the script is located in.
+- Open command prompt and run `python main.py` pointing to the folder of which the script is located in.
 
-Notes:
+# Notes:
 - The branded folder has scripts of organisations i have made this for.
 - Contact me via email at `starlover@starlover.online` to get a specially made one

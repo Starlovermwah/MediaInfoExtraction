@@ -1,10 +1,8 @@
 # Extractor for MediaInfo
-Advanced MediaInfo Extracting
 
-What is this for?
-- Encoding video files and what not from an advanced .txt export from MediaInfo
+- Advanced MediaInfo Extracting using an advanced .txt export
 
-Prequisites
+# Prequisites
 - Python 3.6.xx or higher
 - [MediaInfo](https://mediaarea.net/en/MediaInfo)
 

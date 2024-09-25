@@ -149,7 +149,11 @@ def extract_info(file_path):
                     if language_count == 2:
                         subtitle_info["Language"] = line.split(":", 1)[1].strip()
                 elif "Format" in line:
-                    subtitle_info["Format"] = line.split(":", 1)[1].strip()
+                    format_value = line.split(":", 1)[1].strip()
+                    if format_value == "UTF-8" or format_value == "http://ffdshow.sourceforge.net/tikiwiki/tiki-index.php?page=Getting+ffdshow":
+                        subtitle_info["Format"] = "ASS"
+                    else:
+                        subtitle_info["Format"] = format_value
 
     if audio_info:
         info["Audio"].append(audio_info)
